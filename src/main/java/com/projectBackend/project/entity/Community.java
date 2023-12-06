@@ -28,7 +28,7 @@ public class Community {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
-    private User user;
+    private Member user;
 
     @Column(name = "COMMUNITY_DATE", nullable = false)
     private LocalDateTime communityDate;
