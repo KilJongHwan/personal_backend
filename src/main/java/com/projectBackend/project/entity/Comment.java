@@ -7,6 +7,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,13 +22,27 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long commentId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name = "COMMENT_DATE", nullable = false)
-    private LocalDateTime commentDate;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "community_id")
+    private  Community community;
 
-    @Column(name = "COMMENT_CONTENT", nullable = false)
-    private String commentContent;
+    private LocalDateTime regDate;
+    @PrePersist
+    public void prePersist(){
+        regDate = LocalDateTime.now();
+    }
+
+    @Column(length = 1000)
+    private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Comment parentComment;
+
+    @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY)
+    private List<Comment> childComments = new ArrayList<>();
+
 }
