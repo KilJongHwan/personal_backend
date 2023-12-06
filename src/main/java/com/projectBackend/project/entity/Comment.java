@@ -12,18 +12,17 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@Table(name = "COMMENT")
+@Table(name = "comment")
 @NoArgsConstructor
 public class Comment {
 
     @Id
-    @Column(name = "COMMENT_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long commentId;
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    private Member user;
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @Column(name = "COMMENT_DATE", nullable = false)
     private LocalDateTime commentDate;

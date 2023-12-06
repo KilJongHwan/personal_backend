@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,30 +16,29 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Community {
     @Id
-    @Column(name = "COMMUNITY_ID")
+    @Column(name = "community_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long communityId;
-
+    private String title;
+    private String content;
     private LocalDateTime regDate;
-
     @PrePersist
     public void prePersist(){
         regDate = LocalDateTime.now();
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private Member user;
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-    @Column(name = "COMMUNITY_DATE", nullable = false)
-    private LocalDateTime communityDate;
-
-    @Column(name = "COMMUNITY_TEXT", nullable = false)
-    private String communityText;
-
-    @Column(name = "COMMUNITY_CNT", nullable = false)
     private int communityCnt;
 
-    @Column(name = "CATEGORY", nullable = false)
-    private String category;
+    @ElementCollection
+    @CollectionTable(name = "media_paths", joinColumns = @JoinColumn(name = "community_id"))
+    @Column(name = "path")
+    private List<String> mediaPaths;
+    // 카테고리
+    @ManyToOne(fetch = FetchType.LAZY) // 지연 전략
+    @JoinColumn(name = "category_id")
+    private CommunityCategory category; // 카테고리
 }
