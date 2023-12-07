@@ -55,6 +55,8 @@ public class CommunityService {
         Community community = communityRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("해당 게시물이 존재하지 않습니다.")
         );
+        community.setViewCount(community.getViewCount() + 1); // 조회수 증가
+        communityRepository.save(community); // 변경된 조회수 저장
         return convertEntityToDTO(community);
     }
     public boolean modifyCommunity(Long id, CommunityDTO communityDTO){
@@ -108,7 +110,7 @@ public class CommunityService {
     // 게시글 엔티티를 DTO로 변환
     private CommunityDTO convertEntityToDTO(Community community) {
         CommunityDTO communityDTO = new CommunityDTO();
-        communityDTO.setCommunityId(community.getCommunityId());
+        communityDTO.setId(community.getCommunityId());
         communityDTO.setTitle(community.getTitle());
         communityDTO.setContent(community.getContent());
         communityDTO.setMedias(community.getMediaPaths());

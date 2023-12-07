@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,7 +32,7 @@ public class Community {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private int communityCnt;
+    private int viewCount;
 
     @ElementCollection
     @CollectionTable(name = "media_paths", joinColumns = @JoinColumn(name = "community_id"))
@@ -41,4 +42,5 @@ public class Community {
     @ManyToOne(fetch = FetchType.LAZY) // 지연 전략
     @JoinColumn(name = "category_id")
     private CommunityCategory category; // 카테고리
+
 }
