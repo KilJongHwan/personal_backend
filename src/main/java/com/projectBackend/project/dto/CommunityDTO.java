@@ -17,4 +17,8 @@ public class CommunityDTO {
     private List<String> medias;
     private LocalDateTime regDate;
     private int viewCount;
+    private int voteCount;
+    private String ipAddress;
+    private String nickName;
+    private String password;
 }

@@ -4,9 +4,11 @@ import com.projectBackend.project.dto.CommunityDTO;
 import com.projectBackend.project.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -17,8 +19,8 @@ import java.util.List;
 public class CommunityController {
     private final CommunityService communityService;
     @PostMapping("/new")
-    public ResponseEntity<Boolean> saveCommunity(@RequestBody CommunityDTO communityDTO) {
-        return ResponseEntity.ok(communityService.saveCommunity(communityDTO));
+    public ResponseEntity<Boolean> saveCommunity(@RequestBody CommunityDTO communityDTO, HttpServletRequest request) {
+        return ResponseEntity.ok(communityService.saveCommunity(communityDTO, request));
     }
 
     @GetMapping("/list")
@@ -43,8 +45,17 @@ public class CommunityController {
     // 게시글 목록 페이징
     @GetMapping("/list/page")
     public ResponseEntity<List<CommunityDTO>> boardList(@RequestParam(defaultValue = "0") int page,
-                                                    @RequestParam(defaultValue = "20") int size) {
+                                                    @RequestParam(defaultValue = "10") int size) {
         List<CommunityDTO> list = communityService.getCommunityList(page, size);
         return ResponseEntity.ok(list);
+    }
+
+    // 페이지 수 조회
+    @GetMapping("/count")
+    public ResponseEntity<Integer> listBoards(@RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Integer pageCnt = communityService.getCommunity(pageRequest);
+        return ResponseEntity.ok(pageCnt);
     }
 }

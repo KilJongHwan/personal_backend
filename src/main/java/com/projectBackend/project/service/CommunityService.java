@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,20 +23,33 @@ public class CommunityService {
     private final MemberRepository memberRepository;
     private final CommunityCategoryRepository categoryRepository;
 
-    public boolean saveCommunity(CommunityDTO communityDTO) {
+    public boolean saveCommunity(CommunityDTO communityDTO, HttpServletRequest request) {
         try{
             Community community = new Community();
-            Member member = memberRepository.findByEmail(communityDTO.getEmail()).orElseThrow(
-                    () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
-            );
+
+            if (communityDTO.getEmail() != null && !communityDTO.getEmail().isEmpty()) {
+                Member member = memberRepository.findByEmail(communityDTO.getEmail()).orElseThrow(
+                        () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
+                );
+                community.setMember(member);
+            } else {
+                String clientIp = request.getHeader("X-Forwarded-For");
+
+                if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
+                    clientIp = request.getRemoteAddr();
+                }
+                community.setIpAddress(clientIp);
+                community.setNickName(communityDTO.getNickName());
+                community.setPassword(communityDTO.getPassword());
+            }
             CommunityCategory category = categoryRepository.findById(communityDTO.getCategoryId()).orElseThrow(
                     () -> new RuntimeException("해당 카테고리가 존재하지 않습니다.")
             );
+
             community.setTitle(communityDTO.getTitle());
             community.setCategory(category);
             community.setContent(communityDTO.getContent());
             community.setMediaPaths(communityDTO.getMedias());
-            community.setMember(member);
             communityRepository.save(community);
             return true;
         } catch (Exception e){
@@ -113,8 +127,13 @@ public class CommunityService {
         communityDTO.setId(community.getCommunityId());
         communityDTO.setTitle(community.getTitle());
         communityDTO.setContent(community.getContent());
+        communityDTO.setIpAddress(community.getIpAddress());
         communityDTO.setMedias(community.getMediaPaths());
-        communityDTO.setEmail(community.getMember().getEmail());
+        communityDTO.setNickName(community.getNickName());
+        communityDTO.setPassword(community.getPassword());
+        if (community.getMember() != null) {
+            communityDTO.setEmail(community.getMember().getEmail());
+        }
         communityDTO.setRegDate(community.getRegDate());
         return communityDTO;
     }

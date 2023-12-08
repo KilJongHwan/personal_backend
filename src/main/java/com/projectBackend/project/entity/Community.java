@@ -21,6 +21,8 @@ public class Community {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long communityId;
     private String title;
+
+    @Lob
     private String content;
     private LocalDateTime regDate;
     @PrePersist
@@ -43,4 +45,8 @@ public class Community {
     @JoinColumn(name = "category_id")
     private CommunityCategory category; // 카테고리
 
+    @Column(name = "ip_address")
+    private String ipAddress;
+    private String nickName;
+    private String password;
 }
