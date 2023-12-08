@@ -3,9 +3,11 @@ package com.projectBackend.project.service;
 import com.projectBackend.project.dto.CommunityDTO;
 import com.projectBackend.project.entity.Community;
 import com.projectBackend.project.entity.CommunityCategory;
+import com.projectBackend.project.entity.CommunityView;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.repository.CommunityCategoryRepository;
 import com.projectBackend.project.repository.CommunityRepository;
+import com.projectBackend.project.repository.CommunityViewRepository;
 import com.projectBackend.project.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +24,7 @@ public class CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
     private final CommunityCategoryRepository categoryRepository;
-
+    private final CommunityViewRepository viewRepository;
     public boolean saveCommunity(CommunityDTO communityDTO, HttpServletRequest request) {
         try{
             Community community = new Community();
@@ -65,12 +67,25 @@ public class CommunityService {
         }
         return communityDTOS;
     }
-    public CommunityDTO getCommunityDetail(Long id) {
+    public CommunityDTO getCommunityDetail(Long id , HttpServletRequest request) {
         Community community = communityRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("해당 게시물이 존재하지 않습니다.")
         );
-        community.setViewCount(community.getViewCount() + 1); // 조회수 증가
-        communityRepository.save(community); // 변경된 조회수 저장
+        String visitorIp = request.getHeader("X-Forwarded-For");
+        if (visitorIp == null || visitorIp.isEmpty() || "unknown".equalsIgnoreCase(visitorIp)) {
+            visitorIp = request.getRemoteAddr();
+        }
+        final String finalVisitorIp = visitorIp;
+        List<CommunityView> communityViews = viewRepository.findByCommunity(community);
+        if (communityViews.stream().noneMatch(view -> view.getIp().equals(finalVisitorIp))) {
+            community.setViewCount(community.getViewCount() + 1);
+            CommunityView communityView = new CommunityView();
+            communityView.setCommunity(community);
+            communityView.setIp(finalVisitorIp);
+            viewRepository.save(communityView);
+        }
+
+        communityRepository.save(community);
         return convertEntityToDTO(community);
     }
     public boolean modifyCommunity(Long id, CommunityDTO communityDTO){
@@ -131,6 +146,7 @@ public class CommunityService {
         communityDTO.setMedias(community.getMediaPaths());
         communityDTO.setNickName(community.getNickName());
         communityDTO.setPassword(community.getPassword());
+        communityDTO.setViewCount(community.getViewCount());
         if (community.getMember() != null) {
             communityDTO.setEmail(community.getMember().getEmail());
         }

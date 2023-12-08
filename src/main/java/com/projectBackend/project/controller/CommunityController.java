@@ -18,26 +18,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommunityController {
     private final CommunityService communityService;
+    // 게시글 작석
     @PostMapping("/new")
     public ResponseEntity<Boolean> saveCommunity(@RequestBody CommunityDTO communityDTO, HttpServletRequest request) {
         return ResponseEntity.ok(communityService.saveCommunity(communityDTO, request));
     }
 
+    // 게시글 리스트 조회
     @GetMapping("/list")
     public ResponseEntity<List<CommunityDTO>> getCommunityList() {
         return ResponseEntity.ok(communityService.getCommunityList());
     }
 
+    // 게시글 방 조회
     @GetMapping("/detail/{id}")
-    public ResponseEntity<CommunityDTO> getCommunityDetail(@PathVariable Long id) {
-        return ResponseEntity.ok(communityService.getCommunityDetail(id));
+    public ResponseEntity<CommunityDTO> getCommunityDetail(@PathVariable Long id ,HttpServletRequest request) {
+        return ResponseEntity.ok(communityService.getCommunityDetail(id,request));
     }
-
+    // 게시글 수정
     @PutMapping("/{id}")
     public ResponseEntity<Boolean> modifyCommunity(@PathVariable Long id, @RequestBody CommunityDTO communityDTO) {
         return ResponseEntity.ok(communityService.modifyCommunity(id, communityDTO));
     }
 
+    // 게시글 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteCommunity(@PathVariable Long id) {
         return ResponseEntity.ok(communityService.deleteCommunity(id));
