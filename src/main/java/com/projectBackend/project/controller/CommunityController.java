@@ -13,7 +13,6 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/community")
 @RequiredArgsConstructor
 public class CommunityController {
@@ -53,7 +52,14 @@ public class CommunityController {
         List<CommunityDTO> list = communityService.getCommunityList(page, size);
         return ResponseEntity.ok(list);
     }
-
+    // 카테고리별 게시글 목록 페이징
+    @GetMapping("/list/page/category")
+    public ResponseEntity<List<CommunityDTO>> boardListByCategory(@RequestParam Long categoryId,
+                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "10") int size) {
+        List<CommunityDTO> list = communityService.getCommunityListByCategory(categoryId, page, size);
+        return ResponseEntity.ok(list);
+    }
     // 페이지 수 조회
     @GetMapping("/count")
     public ResponseEntity<Integer> listBoards(@RequestParam(defaultValue = "0") int page,

@@ -4,13 +4,14 @@ import com.projectBackend.project.dto.CommentDTO;
 import com.projectBackend.project.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @Slf4j
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/comment")
 @RequiredArgsConstructor
 public class CommentController {
@@ -42,6 +43,11 @@ public class CommentController {
         return ResponseEntity.ok(list);
     }
     // 댓글 목록 페이징
+    @GetMapping("/list/{boardId}/page")
+    public ResponseEntity<Page<CommentDTO>> commentListPage(@PathVariable Long boardId, Pageable pageable) {
+        Page<CommentDTO> list = commentService.getCommentListPage(boardId, pageable);
+        return ResponseEntity.ok(list);
+    }
     // 댓글 상세 조회
     // 댓글 검색
     @GetMapping("/search")

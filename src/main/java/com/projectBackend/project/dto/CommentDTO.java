@@ -16,4 +16,6 @@ public class CommentDTO {
     private LocalDateTime regDate;
     private Long parentCommentId;
     private List<CommentDTO> childComments;
+    private String nickName;
+    private String password;
 }

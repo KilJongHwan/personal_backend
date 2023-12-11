@@ -8,6 +8,8 @@ import com.projectBackend.project.repository.CommentRepository;
 import com.projectBackend.project.repository.CommunityRepository;
 import com.projectBackend.project.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,9 +30,18 @@ public class CommentService {
             Community board = communityRepository.findById(commentDTO.getCommunityId()).orElseThrow(
                     ()-> new RuntimeException("해당 게시글이 존재하지 않습니다.")
             );
-            Member member = memberRepository.findByEmail(commentDTO.getEmail()).orElseThrow(
-                    ()-> new RuntimeException("해당 회원이 존재하지 않습니다.")
-            );
+            if(commentDTO.getEmail() != null && !commentDTO.getEmail().isEmpty()){
+                Member member = memberRepository.findByEmail(commentDTO.getEmail()).orElse(null);
+                if(member != null) { // 회원이 존재하는 경우
+                    comment.setMember(member);
+                } else {
+                    comment.setNickName(commentDTO.getNickName());
+                    comment.setPassword(commentDTO.getPassword());
+                }
+            } else { // 이메일이 null이거나 빈 문자열인 경우
+                comment.setNickName(commentDTO.getNickName());
+                comment.setPassword(commentDTO.getPassword());
+            }
             Comment parentComment = null;
             if (commentDTO.getParentCommentId() != null) {
                 parentComment = commentRepository.findById(commentDTO.getParentCommentId()).orElseThrow(
@@ -39,7 +50,6 @@ public class CommentService {
             }
             comment.setContent(commentDTO.getContent());
             comment.setParentComment(parentComment);
-            comment.setMember(member);
             comment.setCommunity(board);
             commentRepository.save(comment);
             return true;
@@ -77,9 +87,9 @@ public class CommentService {
         }
     }
     // 댓글 목록 조회
-    public List<CommentDTO> getCommentList(Long boardId) {
+    public List<CommentDTO> getCommentList(Long communityId) {
         try {
-            Community community = communityRepository.findById(boardId).orElseThrow(
+            Community community = communityRepository.findById(communityId).orElseThrow(
                     () -> new RuntimeException("해당 게시글이 존재하지 않습니다.")
             );
             List<Comment> comments = commentRepository.findByCommunity(community);
@@ -93,6 +103,12 @@ public class CommentService {
             return null;
         }
     }
+    public Page<CommentDTO> getCommentListPage(Long communityId, Pageable pageable) {
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new RuntimeException("해당 게시글이 존재하지 않습니다."));
+        Page<Comment> comments = commentRepository.findByCommunity(community, pageable);
+        return comments.map(this::convertEntityToDto);
+    }
     // 댓글 검색
     public List<CommentDTO> getCommentList(String keyword) {
         List<Comment> comments = commentRepository.findByContentContaining(keyword);
@@ -105,17 +121,22 @@ public class CommentService {
 
     // 댓글 엔티티를 DTO로 변환
     private CommentDTO convertEntityToDto(Comment comment) {
-        CommentDTO commentDto = new CommentDTO();
-        commentDto.setCommentId(comment.getCommentId());
-        commentDto.setCommunityId(comment.getCommunity().getCommunityId());
-        commentDto.setEmail(comment.getMember().getEmail());
-        commentDto.setContent(comment.getContent());
-        commentDto.setRegDate(comment.getRegDate());
+        CommentDTO commentDTO = new CommentDTO();
+        commentDTO.setCommentId(comment.getCommentId());
+        commentDTO.setCommunityId(comment.getCommunity().getCommunityId());
+        commentDTO.setContent(comment.getContent());
+        commentDTO.setRegDate(comment.getRegDate());
+        if (comment.getMember() != null) { // 회원이 존재하는 경우
+            commentDTO.setEmail(comment.getMember().getEmail());
+        } else { // 회원이 존재하지 않는 경우
+            commentDTO.setEmail(comment.getNickName()); // 닉네임을 이메일 필드에 설정
+            commentDTO.setPassword(comment.getPassword());
+        }
         List<CommentDTO> childComments = new ArrayList<>();
         for (Comment childComment : comment.getChildComments()) {
             childComments.add(convertEntityToDto(childComment));
         }
-        commentDto.setChildComments(childComments);
-        return commentDto;
+        commentDTO.setChildComments(childComments);
+        return commentDTO;
     }
 }

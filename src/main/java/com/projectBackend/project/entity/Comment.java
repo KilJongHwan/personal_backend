@@ -45,4 +45,7 @@ public class Comment {
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY)
     private List<Comment> childComments = new ArrayList<>();
 
+    private String nickName;
+    private String password;
+
 }

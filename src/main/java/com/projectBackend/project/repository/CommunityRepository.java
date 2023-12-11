@@ -10,4 +10,6 @@ import java.util.List;
 public interface CommunityRepository extends JpaRepository<Community, Long> {
     List<Community> findByTitleContaining(String keyword);
     Page<Community> findAll(Pageable pageable);
+    Page<Community> findByCategory_CategoryId(Long categoryId, Pageable pageable);
+
 }

@@ -132,6 +132,16 @@ public class CommunityService {
         }
         return communityDTOS;
     }
+    // 카테고리별 게시글 페이징
+    public List<CommunityDTO> getCommunityListByCategory(Long categoryId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        List<Community> communities= communityRepository.findByCategory_CategoryId(categoryId, pageable).getContent();
+        List<CommunityDTO> communityDTOS = new ArrayList<>();
+        for (Community community : communities) {
+            communityDTOS.add(convertEntityToDTO(community));
+        }
+        return communityDTOS;
+    }
     // 페이지 수 조회
     public int getCommunity(Pageable pageable){
         return communityRepository.findAll(pageable).getTotalPages();
@@ -147,6 +157,8 @@ public class CommunityService {
         communityDTO.setNickName(community.getNickName());
         communityDTO.setPassword(community.getPassword());
         communityDTO.setViewCount(community.getViewCount());
+        communityDTO.setCategoryId(community.getCategory().getCategoryId());
+
         if (community.getMember() != null) {
             communityDTO.setEmail(community.getMember().getEmail());
         }
