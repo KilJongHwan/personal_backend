@@ -142,6 +142,10 @@ public class CommunityService {
     public int getCommunity(Pageable pageable){
         return communityRepository.findAll(pageable).getTotalPages();
     }
+    // 카테고리에 따른 페이지 수 조회
+    public int getCommunityTotalPagesByCategory(Long categoryId, Pageable pageable) {
+        return communityRepository.findByCategory_CategoryId(categoryId, pageable).getTotalPages();
+    }
 
     // 개념글 추천
     public void vote(Long communityId, String userEmail, String visitorIp, boolean isUpvote) {

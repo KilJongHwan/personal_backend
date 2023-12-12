@@ -18,7 +18,7 @@ public class CommunityView {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "community_id")
     private Community community;
 

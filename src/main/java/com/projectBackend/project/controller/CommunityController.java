@@ -69,6 +69,15 @@ public class CommunityController {
         Integer pageCnt = communityService.getCommunity(pageRequest);
         return ResponseEntity.ok(pageCnt);
     }
+    // 카테고리별 페이지 수 조회
+    @GetMapping("/count/{categoryId}")
+    public ResponseEntity<Integer> getCommunityTotalPagesByCategory(@PathVariable Long categoryId,
+                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "10") int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Integer pageCnt = communityService.getCommunityTotalPagesByCategory(categoryId, pageRequest);
+        return ResponseEntity.ok(pageCnt);
+    }
     // 개념글 추천
     @PostMapping("/vote/{id}/{isUpvote}")
     public ResponseEntity<String> vote(@PathVariable Long id, @PathVariable boolean isUpvote, HttpServletRequest request, Principal principal){
