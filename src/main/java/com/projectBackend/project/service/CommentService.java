@@ -1,5 +1,6 @@
 package com.projectBackend.project.service;
 
+import com.projectBackend.project.configration.WebSocketHandler;
 import com.projectBackend.project.dto.CommentDTO;
 import com.projectBackend.project.entity.Comment;
 import com.projectBackend.project.entity.Community;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +25,13 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
+    private final WebSocketHandler webSocketHandler;
 
     // 댓글 등록
     public boolean commentRegister(CommentDTO commentDTO){
         try {
             Comment comment = new Comment();
-            Community board = communityRepository.findById(commentDTO.getCommunityId()).orElseThrow(
+            Community community = communityRepository.findById(commentDTO.getCommunityId()).orElseThrow(
                     ()-> new RuntimeException("해당 게시글이 존재하지 않습니다.")
             );
             if(commentDTO.getEmail() != null && !commentDTO.getEmail().isEmpty()){
@@ -50,8 +54,19 @@ public class CommentService {
             }
             comment.setContent(commentDTO.getContent());
             comment.setParentComment(parentComment);
-            comment.setCommunity(board);
+            comment.setCommunity(community);
             commentRepository.save(comment);
+
+            // 댓글 등록 후 알림 메시지 전송
+            String postEmail = community.getMember().getEmail();
+            String postIpAddress = community.getIpAddress(); // 게시글 작성자의 IP 주소
+            WebSocketSession postAuthorSession = webSocketHandler.getUserSessionMap().get(
+                    postEmail != null ? postEmail : postIpAddress // 이메일이 없는 경우 IP 주소를 사용합니다.
+            );
+            if (postAuthorSession != null && postAuthorSession.isOpen()) { // 세션이 열려있는 경우에만 메시지를 보냅니다.
+                String message = "새로운 댓글이 작성되었습니다: " + comment.getContent();
+                postAuthorSession.sendMessage(new TextMessage(message)); // 알림 메시지를 보냅니다.
+            }
             return true;
 
         }catch (Exception e) {
