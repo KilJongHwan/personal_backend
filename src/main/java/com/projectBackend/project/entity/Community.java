@@ -35,12 +35,13 @@ public class Community {
     private Member member;
 
     private int viewCount;
+    private int voteCount;
 
     @ElementCollection
     @CollectionTable(name = "media_paths", joinColumns = @JoinColumn(name = "community_id"))
     @Column(name = "path")
     private List<String> mediaPaths;
-    // 카테고리
+
     @ManyToOne(fetch = FetchType.LAZY) // 지연 전략
     @JoinColumn(name = "category_id")
     private CommunityCategory category; // 카테고리

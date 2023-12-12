@@ -27,4 +27,7 @@ public class CommunityVote {
 
     @Column(name = "is_upvote")
     private boolean isUpvote; // true일 경우 추천, false일 경우 비추천
+    @Column(name = "userEmail")
+    private String userEmail;
+
 }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.List;
 
 @Slf4j
@@ -67,5 +68,18 @@ public class CommunityController {
         PageRequest pageRequest = PageRequest.of(page, size);
         Integer pageCnt = communityService.getCommunity(pageRequest);
         return ResponseEntity.ok(pageCnt);
+    }
+    // 개념글 추천
+    @PostMapping("/vote/{id}/{isUpvote}")
+    public ResponseEntity<String> vote(@PathVariable Long id, @PathVariable boolean isUpvote, HttpServletRequest request, Principal principal){
+        String email = principal != null ? principal.getName() : null;
+        String visitorIp = request.getRemoteAddr();
+        try {
+            communityService.vote(id, email, visitorIp, isUpvote);
+            return ResponseEntity.ok(isUpvote ? "추천이 완료되었습니다." : "비추천이 완료되었습니다.");
+        } catch (IllegalArgumentException e) {
+            String message = isUpvote ? "이미 추천하셨습니다." : "이미 비추천하셨습니다.";
+            return ResponseEntity.badRequest().body(message);
+        }
     }
 }

@@ -1,14 +1,8 @@
 package com.projectBackend.project.service;
 
 import com.projectBackend.project.dto.CommunityDTO;
-import com.projectBackend.project.entity.Community;
-import com.projectBackend.project.entity.CommunityCategory;
-import com.projectBackend.project.entity.CommunityView;
-import com.projectBackend.project.entity.Member;
-import com.projectBackend.project.repository.CommunityCategoryRepository;
-import com.projectBackend.project.repository.CommunityRepository;
-import com.projectBackend.project.repository.CommunityViewRepository;
-import com.projectBackend.project.repository.MemberRepository;
+import com.projectBackend.project.entity.*;
+import com.projectBackend.project.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +20,7 @@ public class CommunityService {
     private final MemberRepository memberRepository;
     private final CommunityCategoryRepository categoryRepository;
     private final CommunityViewRepository viewRepository;
+    private final CommunityVoteRepository communityVoteRepository;
     public boolean saveCommunity(CommunityDTO communityDTO, HttpServletRequest request) {
         try{
             Community community = new Community();
@@ -146,6 +142,44 @@ public class CommunityService {
     public int getCommunity(Pageable pageable){
         return communityRepository.findAll(pageable).getTotalPages();
     }
+
+    // 개념글 추천
+    public void vote(Long communityId, String userEmail, String visitorIp, boolean isUpvote) {
+        Optional<Community> communityOptional = communityRepository.findById(communityId);
+        if (!communityOptional.isPresent()) {
+            throw new IllegalArgumentException("해당 게시글이 존재하지 않습니다.");
+        }
+
+        Community community = communityOptional.get();
+
+        // 로그인한 경우 이메일로 비로그인일 경우 IP로 중복 추천 체크
+        Optional<CommunityVote> voteOptional;
+        if (userEmail != null && !userEmail.isEmpty()) {
+            voteOptional = communityVoteRepository.findByCommunityAndUserEmail(community, userEmail);
+        } else {
+            voteOptional = communityVoteRepository.findByCommunityAndIp(community, visitorIp);
+        }
+
+        // 이미 추천했는지 확인
+        if (voteOptional.isPresent()) {
+            throw new IllegalArgumentException("이미 추천하셨습니다.");
+        }
+
+        // 추천 수 증가 또는 감소
+        if (isUpvote) {
+            community.setVoteCount(community.getVoteCount() + 1);
+        } else {
+            community.setVoteCount(community.getVoteCount() - 1);
+        }
+        communityRepository.save(community);
+
+        // 추천 기록 저장
+        CommunityVote vote = new CommunityVote();
+        vote.setCommunity(community);
+        vote.setIp(visitorIp);
+        vote.setUpvote(isUpvote);
+        communityVoteRepository.save(vote);
+    }
     // 게시글 엔티티를 DTO로 변환
     private CommunityDTO convertEntityToDTO(Community community) {
         CommunityDTO communityDTO = new CommunityDTO();
@@ -157,6 +191,7 @@ public class CommunityService {
         communityDTO.setNickName(community.getNickName());
         communityDTO.setPassword(community.getPassword());
         communityDTO.setViewCount(community.getViewCount());
+        communityDTO.setVoteCount(community.getVoteCount());
         communityDTO.setCategoryId(community.getCategory().getCategoryId());
 
         if (community.getMember() != null) {
