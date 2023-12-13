@@ -1,5 +1,6 @@
 package com.projectBackend.project.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projectBackend.project.configration.WebSocketHandler;
 import com.projectBackend.project.dto.CommentDTO;
 import com.projectBackend.project.entity.Comment;
@@ -9,6 +10,7 @@ import com.projectBackend.project.repository.CommentRepository;
 import com.projectBackend.project.repository.CommunityRepository;
 import com.projectBackend.project.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,9 +20,12 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
+    private final ObjectMapper objectMapper;
+//    private Map<String, ChatRoomResDTO> chatRooms;
 
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;
@@ -72,6 +77,13 @@ public class CommentService {
         }catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+    public <T> void sendMessage(WebSocketSession session, T message){
+        try {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
         }
     }
     // 댓글 수정
