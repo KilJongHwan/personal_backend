@@ -18,14 +18,15 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
     private final ObjectMapper objectMapper;
-//    private Map<String, ChatRoomResDTO> chatRooms;
 
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;
@@ -63,14 +64,23 @@ public class CommentService {
             commentRepository.save(comment);
 
             // 댓글 등록 후 알림 메시지 전송
-            String postEmail = community.getMember().getEmail();
+            Member postAuthor = community.getMember();
+            String postEmail = postAuthor != null ? postAuthor.getEmail() : null;
             String postIpAddress = community.getIpAddress(); // 게시글 작성자의 IP 주소
-            WebSocketSession postAuthorSession = webSocketHandler.getUserSessionMap().get(
+
+
+            List<WebSocketSession> postAuthorSessions = webSocketHandler.getUserSessionMap().get(
                     postEmail != null ? postEmail : postIpAddress // 이메일이 없는 경우 IP 주소를 사용합니다.
             );
-            if (postAuthorSession != null && postAuthorSession.isOpen()) { // 세션이 열려있는 경우에만 메시지를 보냅니다.
-                String message = "새로운 댓글이 작성되었습니다: " + comment.getContent();
-                postAuthorSession.sendMessage(new TextMessage(message)); // 알림 메시지를 보냅니다.
+            if (postAuthorSessions != null) {
+                for (WebSocketSession postAuthorSession : postAuthorSessions) {
+                    if (postAuthorSession.isOpen()) { // 세션이 열려있는 경우에만 메시지를 보냅니다.
+                        Map<String, String> messageMap = new HashMap<>();
+                        messageMap.put("message", "새로운 댓글이 작성되었습니다: " + comment.getContent());
+                        String messageJson = objectMapper.writeValueAsString(messageMap);
+                        postAuthorSession.sendMessage(new TextMessage(messageJson)); // JSON 형식의 알림 메시지를 보냅니다.
+                    }
+                }
             }
             return true;
 
