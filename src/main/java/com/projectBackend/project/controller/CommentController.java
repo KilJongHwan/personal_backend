@@ -42,16 +42,17 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
     // 댓글 목록 조회
-    @GetMapping("/list/{boardId}")
-    public ResponseEntity<List<CommentDTO>> commentList(@PathVariable Long boardId, @RequestParam(defaultValue = "등록순") String sortType, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        log.info("boardId: {}, sortType: {}, page: {}, size: {}", boardId, sortType, page, size);
-        List<CommentDTO> list = commentService.getCommentList(boardId, sortType, page, size);
+    @GetMapping("/list/{communityId}")
+    public ResponseEntity<List<CommentDTO>> commentList(@PathVariable Long communityId, @RequestParam(defaultValue = "최신순") String sortType, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        log.info("boardId: {}, sortType: {}, page: {}, size: {}", communityId, sortType, page, size);
+        List<CommentDTO> list = commentService.getCommentList(communityId, sortType, page, size);
         return ResponseEntity.ok(list);
     }
     // 댓글 목록 페이징
-    @GetMapping("/list/{boardId}/page")
-    public ResponseEntity<Page<CommentDTO>> commentListPage(@PathVariable Long boardId, Pageable pageable) {
-        Page<CommentDTO> list = commentService.getCommentListPage(boardId, pageable);
+    @GetMapping("/list/{communityId}/page")
+    public ResponseEntity<Page<CommentDTO>> commentListPage(@PathVariable Long communityId,
+                                                            @RequestParam(defaultValue = "최신순") String sortType, Pageable pageable) {
+        Page<CommentDTO> list = commentService.getCommentListPage(communityId, sortType, pageable);
         return ResponseEntity.ok(list);
     }
     // 댓글 검색

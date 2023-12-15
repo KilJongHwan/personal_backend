@@ -43,7 +43,6 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Comment parentComment;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY)
     private List<Comment> childComments = new ArrayList<>();
 

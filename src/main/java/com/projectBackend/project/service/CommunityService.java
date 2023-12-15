@@ -51,6 +51,7 @@ public class CommunityService {
 
             community.setTitle(communityDTO.getTitle());
             community.setCategory(category);
+            community.setCategoryName(category.getCategoryName());
             community.setContent(communityDTO.getContent());
             community.setMediaPaths(communityDTO.getMedias());
             communityRepository.save(community);
@@ -227,6 +228,7 @@ public class CommunityService {
         communityDTO.setViewCount(community.getViewCount());
         communityDTO.setVoteCount(community.getVoteCount());
         communityDTO.setCategoryId(community.getCategory().getCategoryId());
+        communityDTO.setCategoryName(community.getCategoryName());
 
         if (community.getMember() != null) {
             communityDTO.setEmail(community.getMember().getEmail());
