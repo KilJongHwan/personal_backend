@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -183,20 +184,33 @@ public class CommentService {
                 case "등록순":
                     sort = Sort.by(Sort.Direction.ASC, "commentId");
                     break;
-                case "답글순":
-                    sort = Sort.by(Sort.Direction.ASC, "parentCommentId", "commentId");
-                    break;
                 default:
                     sort = Sort.unsorted();
                     break;
             }
             PageRequest pageable = PageRequest.of(page, size, sort);
             List<Comment> comments = commentRepository.findByCommunity(community, pageable).getContent();
-            List<CommentDTO> commentDtos = new ArrayList<>();
-            for (Comment comment : comments) {
-                commentDtos.add(convertEntityToDto(comment));
+
+            // 부모 댓글과 자식 댓글로 분리
+            List<Comment> parentComments = comments.stream().filter(c -> c.getParentComment() == null).collect(Collectors.toList());
+            List<Comment> childComments = comments.stream().filter(c -> c.getParentComment() != null).collect(Collectors.toList());
+
+            // 부모 댓글에 올바른 자식 댓글만 연결
+            for (Comment parent : parentComments) {
+                parent.setChildComments(childComments.stream()
+                        .filter(c -> c.getParentComment().getCommentId().equals(parent.getCommentId()))
+                        .collect(Collectors.toList()));
             }
-            return commentDtos;
+
+            // 자식 댓글이 올바른 부모 댓글에 연결되었는지 확인
+            for (Comment child : childComments) {
+                if (child.getParentComment() == null || !parentComments.contains(child.getParentComment())) {
+                    throw new RuntimeException("잘못된 부모 자식 관계입니다.");
+                }
+            }
+            // DTO 변환
+            return parentComments.stream().map(this::convertEntityToDto).collect(Collectors.toList());
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -222,6 +236,8 @@ public class CommentService {
     private CommentDTO convertEntityToDto(Comment comment) {
         CommentDTO commentDTO = new CommentDTO();
         commentDTO.setCommentId(comment.getCommentId());
+        commentDTO.setNickName(comment.getNickName());
+        commentDTO.setPassword(comment.getPassword());
         commentDTO.setCommunityId(comment.getCommunity().getCommunityId());
         commentDTO.setContent(comment.getContent());
         commentDTO.setRegDate(comment.getRegDate());
