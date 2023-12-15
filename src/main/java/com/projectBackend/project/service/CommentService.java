@@ -222,7 +222,7 @@ public class CommentService {
             commentDTOs.sort(Comparator.comparing(commentDTO -> commentDTO.getChildComments().size(), Comparator.reverseOrder()));
         }
 
-        return new PageImpl<>(commentDTOs, pageable, commentDTOs.size());
+        return new PageImpl<>(commentDTOs, pageable, comments.getTotalElements());
     }
 
     // 댓글 검색
