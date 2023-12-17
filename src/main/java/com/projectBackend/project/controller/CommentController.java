@@ -55,6 +55,12 @@ public class CommentController {
         Page<CommentDTO> list = commentService.getCommentListPage(communityId, sortType, pageable);
         return ResponseEntity.ok(list);
     }
+    // 전체 댓글 수 조회
+    @GetMapping("/count/{communityId}")
+    public ResponseEntity<Integer> commentCount(@PathVariable Long communityId) {
+        int count = commentService.getCommentCount(communityId);
+        return ResponseEntity.ok(count);
+    }
     // 댓글 검색
     @GetMapping("/search")
     public ResponseEntity<List<CommentDTO>> commentSearch(@RequestParam String keyword) {

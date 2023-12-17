@@ -234,6 +234,13 @@ public class CommentService {
         }
         return commentDtos;
     }
+    // 전체 댓글 수 조회
+    public int getCommentCount(Long communityId) {
+        Community community = communityRepository.findById(communityId).orElseThrow(
+                () -> new RuntimeException("해당 게시글이 존재하지 않습니다.")
+        );
+        return commentRepository.countByCommunity(community);
+    }
 
     // 댓글 엔티티를 DTO로 변환
     private CommentDTO convertEntityToDto(Comment comment) {
