@@ -18,4 +18,5 @@ public class CommentDTO {
     private List<CommentDTO> childComments;
     private String nickName;
     private String password;
+    private String ipAddress;
 }

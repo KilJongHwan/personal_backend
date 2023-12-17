@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
@@ -31,10 +32,11 @@ public class CommentService {
     private final WebSocketHandler webSocketHandler;
 
     // 댓글 등록
-    public boolean commentRegister(CommentDTO commentDTO){
+    public boolean commentRegister(CommentDTO commentDTO, HttpServletRequest request){
         try {
             Comment comment = new Comment();
             setCommunity(comment, commentDTO);
+            comment.setIpAddress(getClientIP(request));
             setMemberOrAnonymous(comment, commentDTO);
             setParentComment(comment, commentDTO);
 
@@ -49,7 +51,21 @@ public class CommentService {
             return false;
         }
     }
-
+    // 아이피 가져오기
+    public String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+    // 게시글 세팅
     private void setCommunity(Comment comment, CommentDTO commentDTO) {
         Community community = communityRepository.findById(commentDTO.getCommunityId()).orElseThrow(
                 ()-> new RuntimeException("해당 게시글이 존재하지 않습니다.")
@@ -251,10 +267,11 @@ public class CommentService {
         commentDTO.setRegDate(comment.getRegDate());
         commentDTO.setNickName(comment.getNickName());
         commentDTO.setPassword(comment.getPassword());
+        commentDTO.setIpAddress(comment.getIpAddress());
         if (comment.getMember() != null) { // 회원이 존재하는 경우
             commentDTO.setEmail(comment.getMember().getEmail());
         } else { // 회원이 존재하지 않는 경우
-            commentDTO.setEmail(comment.getNickName()); // 닉네임을 이메일 필드에 설정
+            commentDTO.setEmail(comment.getNickName());
             commentDTO.setPassword(comment.getPassword());
         }
         if (comment.getParentComment() != null) {
