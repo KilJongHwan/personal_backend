@@ -242,6 +242,8 @@ public class CommentService {
         commentDTO.setCommunityId(comment.getCommunity().getCommunityId());
         commentDTO.setContent(comment.getContent());
         commentDTO.setRegDate(comment.getRegDate());
+        commentDTO.setNickName(comment.getNickName());
+        commentDTO.setPassword(comment.getPassword());
         if (comment.getMember() != null) { // 회원이 존재하는 경우
             commentDTO.setEmail(comment.getMember().getEmail());
         } else { // 회원이 존재하지 않는 경우
