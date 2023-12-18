@@ -8,7 +8,7 @@ import com.projectBackend.project.entity.Community;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.repository.CommentRepository;
 import com.projectBackend.project.repository.CommunityRepository;
-import com.projectBackend.project.repository.MemberRepository;
+import com.projectBackend.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -28,7 +28,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;
-    private final MemberRepository memberRepository;
+    private final UserRepository memberRepository;
     private final WebSocketHandler webSocketHandler;
 
     // 댓글 등록
@@ -75,7 +75,7 @@ public class CommentService {
 
     private void setMemberOrAnonymous(Comment comment, CommentDTO commentDTO) {
         if(commentDTO.getEmail() != null && !commentDTO.getEmail().isEmpty()){
-            Member member = memberRepository.findByEmail(commentDTO.getEmail()).orElse(null);
+            Member member = memberRepository.findByUserEmail(commentDTO.getEmail()).orElse(null);
             if(member != null) { // 회원이 존재하는 경우
                 comment.setMember(member);
             } else {
@@ -103,7 +103,7 @@ public class CommentService {
 
     private void sendNotification(Comment comment) throws IOException {
         Member postAuthor = comment.getCommunity().getMember();
-        String postEmail = postAuthor != null ? postAuthor.getEmail() : null;
+        String postEmail = postAuthor != null ? postAuthor.getUserEmail() : null;
         String postIpAddress = comment.getCommunity().getIpAddress(); // 게시글 작성자의 IP 주소
 
         List<WebSocketSession> postAuthorSessions = webSocketHandler.getUserSessionMap().get(
@@ -270,7 +270,7 @@ public class CommentService {
         commentDTO.setPassword(comment.getPassword());
         commentDTO.setIpAddress(comment.getIpAddress());
         if (comment.getMember() != null) { // 회원이 존재하는 경우
-            commentDTO.setEmail(comment.getMember().getEmail());
+            commentDTO.setEmail(comment.getMember().getUserEmail());
         } else { // 회원이 존재하지 않는 경우
             commentDTO.setEmail(comment.getNickName());
             commentDTO.setPassword(comment.getPassword());

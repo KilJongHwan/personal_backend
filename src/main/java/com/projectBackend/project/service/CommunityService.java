@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CommunityService {
     private final CommunityRepository communityRepository;
-    private final MemberRepository memberRepository;
+    private final UserRepository memberRepository;
     private final CommentRepository commentRepository;
     private final CommunityCategoryRepository categoryRepository;
     private final CommunityViewRepository viewRepository;
@@ -30,11 +30,11 @@ public class CommunityService {
             Community community = new Community();
 
             if (communityDTO.getEmail() != null && !communityDTO.getEmail().isEmpty()) {
-                Member member = memberRepository.findByEmail(communityDTO.getEmail()).orElseThrow(
+                Member member = memberRepository.findByUserEmail(communityDTO.getEmail()).orElseThrow(
                         () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
                 );
                 community.setMember(member);
-                community.setEmail(member.getEmail());
+                community.setEmail(member.getUserEmail());
             } else {
                 String clientIp = request.getHeader("X-Forwarded-For");
 
@@ -245,7 +245,7 @@ public class CommunityService {
         communityDTO.setCategoryName(community.getCategoryName());
 
         if (community.getMember() != null) {
-            communityDTO.setEmail(community.getMember().getEmail());
+            communityDTO.setEmail(community.getMember().getUserEmail());
         }
         communityDTO.setRegDate(community.getRegDate());
         return communityDTO;
