@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface PerformanceRepository extends JpaRepository<Performance, Long> {
-    // 길종환
-//    @Query("SELECT distinct p FROM Performance p JOIN FETCH p.performer pr JOIN FETCH pr.member")
-//    List<Performance> findAllWithPerformerAndMember();
+
+
 }
+
