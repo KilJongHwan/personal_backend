@@ -93,8 +93,8 @@ public class CommunityController {
         }
     }
     // 개념글 랭킹 목록
-    @GetMapping("/ranking/realtime")
-    public ResponseEntity<List<Community>> getRealtimeRanking() {
-        return ResponseEntity.ok(communityService.getRealtimeRanking());
+    @GetMapping("/ranking/{period}")
+    public ResponseEntity<List<Community>> getRealtimeRanking(@PathVariable String period) {
+        return ResponseEntity.ok(communityService.getRealtimeRanking(period));
     }
 }

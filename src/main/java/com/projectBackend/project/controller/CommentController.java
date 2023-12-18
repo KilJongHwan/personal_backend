@@ -25,9 +25,9 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
     @PostMapping("/reply/new")
-    public ResponseEntity<Boolean> replyRegister(@RequestBody CommentDTO commentDTO) {
+    public ResponseEntity<Boolean> replyRegister(@RequestBody CommentDTO commentDTO, HttpServletRequest request) {
         log.info("commentDto: {}", commentDTO);
-        boolean result = commentService.replyRegister(commentDTO);
+        boolean result = commentService.replyRegister(commentDTO, request);
         return ResponseEntity.ok(result);
     }
     // 댓글 수정

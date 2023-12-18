@@ -54,13 +54,13 @@ public class CommentService {
     // 아이피 가져오기
     public String getClientIP(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("WL-Proxy-Client-IP");
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
         return ip;
@@ -122,10 +122,11 @@ public class CommentService {
     }
 
     // 대댓글 등록
-    public boolean replyRegister(CommentDTO commentDTO){
+    public boolean replyRegister(CommentDTO commentDTO, HttpServletRequest request){
         try {
             Comment comment = new Comment();
             setCommunity(comment, commentDTO);
+            comment.setIpAddress(getClientIP(request));
             setMemberOrAnonymous(comment, commentDTO);
             setParentCommentForReply(comment, commentDTO);
 

@@ -197,15 +197,29 @@ public class CommunityService {
         return post.getViewCount() * 0.3f + post.getVoteCount() * 0.5f + commentCount * 0.2f;
     }
     // 실시간 랭킹
-    public List<Community> getRealtimeRanking() {
+    public List<Community> getRealtimeRanking(String period) {
         // 최근 1시간 이내의 게시글을 대상으로 함
-        LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
+        LocalDateTime targetTime;
+
+        switch (period) {
+            case "realtime":
+                targetTime = LocalDateTime.now().minusHours(1);
+                break;
+            case "weekly":
+                targetTime = LocalDateTime.now().minusWeeks(1);
+                break;
+            case "monthly":
+                targetTime = LocalDateTime.now().minusMonths(1);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid period: " + period);
+        }
 
         // 게시글을 불러옴
-        List<Community> posts = communityRepository.findByRegDateAfter(oneHourAgo);
+        List<Community> posts = communityRepository.findByRegDateAfter(targetTime);
 
 
-        // 복합 점수를 계산하여 랭킹을 매김
+        // 점수를 계산하여 랭킹을 매김
         posts.sort((post1, post2) -> Float.compare(calculateScore(post2), calculateScore(post1)));
 
         log.warn(posts.toString());
