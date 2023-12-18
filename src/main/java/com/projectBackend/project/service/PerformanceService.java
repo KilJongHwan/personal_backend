@@ -135,4 +135,15 @@ public class PerformanceService {
         performanceDto.setPerformanceImage(performance.getPerformanceImage());
         return performanceDto;
     }
+
+    // 길종환
+    // 공연 정보와 연관된 퍼포머, 멤버 정보 함께 조회
+//    public List<PerformanceDto> getPerformanceWithPerformerAndMemberList() {
+//        List<Performance> performances = performanceRepository.findAllWithPerformerAndMember();
+//        List<PerformanceDto> performanceDtos = new ArrayList<>();
+//        for (Performance performance : performances) {
+//            performanceDtos.add(convertEntityToDto(performance));
+//        }
+//        return performanceDtos;
+//    }
 }
