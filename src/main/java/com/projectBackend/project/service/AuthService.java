@@ -185,9 +185,22 @@ public class AuthService {
         return isTrue;
     }
 
+    // 길종환
+    public UserResDto getUserInfo(String token) {
+        String email = tokenProvider.getUserEmail(token);
+        Optional<Member> userEntity = userRepository.findByUserEmail(email);
 
+        if (userEntity.isPresent()) {
+            Member user = userEntity.get();
+            return UserResDto.of(user);
+        } else {
+            return null;
+        }
+    }
 
+    public Member getUserByEmail(String email) {
+        Optional<Member> userEntity = userRepository.findByUserEmail(email);
 
-
-
+        return userEntity.orElse(null);
+    }
 }
