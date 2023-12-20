@@ -203,4 +203,17 @@ public class AuthService {
 
         return userEntity.orElse(null);
     }
+    // 유저 포인트 증가
+    public boolean increasePoints(String userEmail, int amount) {
+        try {
+            Member member = userRepository.findByUserEmail(userEmail)
+                    .orElseThrow(() -> new RuntimeException("해당 이메일의 사용자를 찾을 수 없습니다."));
+            member.setUserPoint(member.getUserPoint() + amount);
+            userRepository.save(member);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

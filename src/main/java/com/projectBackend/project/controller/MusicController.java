@@ -136,4 +136,7 @@ public class MusicController {
             return ResponseEntity.notFound().build();
         }
     }
+    // 맴버가 작사/작곡자 인지 확인하기
+//    @GetMapping("/check/{userId}")
+//    public ResponseEntity<String> check
 }
