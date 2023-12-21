@@ -123,11 +123,5 @@ public class CommunityController {
         Page<CommunityDTO> list = communityService.searchByComment(keyword, pageable);
         return ResponseEntity.ok(list);
     }
-    // 검색어에 따른 페이지 수 조회
-    @GetMapping("/count/search")
-    public ResponseEntity<Integer> getSearchTotalPages(@RequestParam String keyword, @RequestParam int size) {
-        Pageable pageable = PageRequest.of(0, size);
-        Page<CommunityDTO> list = communityService.searchByTitleAndContent(keyword, pageable);
-        return ResponseEntity.ok(list.getTotalPages());
-    }
+
 }

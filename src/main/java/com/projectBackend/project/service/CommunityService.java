@@ -230,13 +230,6 @@ public class CommunityService {
         // 상위 10개 게시글만 반환함
         return posts.subList(0, Math.min(10, posts.size()));
     }
-    // 검색별로 페이지수 찾기
-    public <T> Page<T> paginate(List<T> items, Pageable pageable) {
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), items.size());
-        List<T> paginatedList = items.subList(start, end);
-        return new PageImpl<>(paginatedList, pageable, items.size());
-    }
     // 게시글 페이지네이션 검색
     public Page<CommunityDTO> searchByTitleAndContent(String keyword, Pageable pageable) {
         Page<Community> communities = communityRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
