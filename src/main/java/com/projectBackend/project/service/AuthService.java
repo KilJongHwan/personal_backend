@@ -215,5 +215,19 @@ public class AuthService {
             return false;
         }
     }
-
+    // 유저 포인트 감소
+    public boolean decreasePoints(String userEmail, int amount) {
+        try {
+            Member member = userRepository.findByUserEmail(userEmail)
+                    .orElseThrow(() -> new RuntimeException("해당 이메일의 사용자를 찾을 수 없습니다."));
+            if (member.getUserPoint() < amount) {
+                throw new RuntimeException("포인트가 부족합니다.");
+            }
+            member.setUserPoint(member.getUserPoint() - amount);
+            userRepository.save(member);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

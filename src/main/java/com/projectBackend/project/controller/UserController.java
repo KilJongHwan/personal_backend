@@ -45,4 +45,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
         }
     }
+    // 유저 포인트 환전
+    @PostMapping("/exchangePoints")
+    public ResponseEntity<Boolean> exchangePoints(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        int points = Integer.parseInt(payload.get("points"));
+        boolean success = authService.decreasePoints(email, points);
+
+        if (success) {
+            return ResponseEntity.ok().body(true);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+        }
+    }
 }
