@@ -44,8 +44,12 @@ public class Music {
     @Column(name = "thumbnail_img")
     private String thumbnailImage;
 
-    @Column(name = "promo_img")
-    private String promoImage;
+
+    @Column(name = "heart_count")
+    private int heartCount;
+
+    @Column(name = "music_file")
+    private String musicFile;
 
     @Column(name = "music_info")
     private String musicInfo;
@@ -53,4 +57,6 @@ public class Music {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id") // 외래 키 지정
     private Member member;
+
+
 }

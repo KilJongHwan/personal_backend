@@ -4,6 +4,7 @@ package com.projectBackend.project.controller;
 import com.projectBackend.project.dto.MusicDTO;
 import com.projectBackend.project.dto.MusicUserDto;
 import com.projectBackend.project.dto.UserReqDto;
+import com.projectBackend.project.service.MusicHeartService;
 import com.projectBackend.project.service.MusicService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MusicController {
     private  final MusicService musicService;
+    private final MusicHeartService musicHeartService;
 
 //    @Autowired
 //    public MusicController(MusicService musicService) {
@@ -90,15 +92,29 @@ public class MusicController {
     }
 
 
+
+
+
+
+
+
     //음악 등록
     @PostMapping("/new")
-    public ResponseEntity<MusicDTO> addMusic(@RequestBody MusicUserDto musicUserDto) {
+    public ResponseEntity<MusicUserDto> addMusic(@RequestBody MusicUserDto musicUserDto) {
 
         MusicDTO musicDto = musicUserDto.getMusicDTO();
         UserReqDto userReqDTO = musicUserDto.getUserReqDto();
         MusicDTO addedMusic = musicService.addMusic(musicDto, userReqDTO);
-        return ResponseEntity.ok(addedMusic);
+
+        // MusicUserDto에 추가된 MusicDTO와 UserReqDto를 설정하고 반환.
+        MusicUserDto responseDto = new MusicUserDto();
+        responseDto.setMusicDTO(addedMusic); // 추가된 음악 DTO 설정
+        responseDto.setUserReqDto(userReqDTO); // userReqDTO 설정
+
+        return ResponseEntity.ok(responseDto);
     }
+
+
 
 
 
@@ -136,7 +152,4 @@ public class MusicController {
             return ResponseEntity.notFound().build();
         }
     }
-    // 맴버가 작사/작곡자 인지 확인하기
-//    @GetMapping("/check/{userId}")
-//    public ResponseEntity<String> check
 }
