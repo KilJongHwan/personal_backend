@@ -41,6 +41,7 @@ public class CommentService {
             setParentComment(comment, commentDTO);
 
             comment.setContent(commentDTO.getContent());
+            comment.setEmail(commentDTO.getEmail());
             commentRepository.save(comment);
 
             sendNotification(comment);
@@ -78,6 +79,7 @@ public class CommentService {
             Member member = memberRepository.findByUserEmail(commentDTO.getEmail()).orElse(null);
             if(member != null) { // 회원이 존재하는 경우
                 comment.setMember(member);
+                comment.setNickName(member.getUserNickname());
             } else {
                 setAnonymous(comment, commentDTO);
             }
