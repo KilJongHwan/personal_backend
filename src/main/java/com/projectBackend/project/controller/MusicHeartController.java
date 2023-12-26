@@ -1,6 +1,6 @@
 package com.projectBackend.project.controller;
 
-
+import com.projectBackend.project.dto.MusicHeartDto;
 import com.projectBackend.project.service.MusicHeartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +21,12 @@ public class MusicHeartController {
     private final MusicHeartService musicHeartService;
 
 
-//
-//    @PostMapping("/like")
-//    public ResponseEntity<Integer> musicHeart(@RequestBody MusicHeartDto musicHeartDto) {
-//
-//        int result = musicHeartService.likeMusic(musicHeartDto);
-//        return ResponseEntity.ok(result);
-//
-//    }
+
+    @PostMapping("/like")
+    public ResponseEntity<Integer> musicHeart(@RequestBody MusicHeartDto musicHeartDto) {
+
+        int result = musicHeartService.likeMusic(musicHeartDto);
+        return ResponseEntity.ok(result);
+
+    }
 }

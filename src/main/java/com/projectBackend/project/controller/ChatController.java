@@ -24,8 +24,14 @@ public class ChatController {
     @PostMapping("/new")
     public ResponseEntity<String> createRoom(@RequestBody ChatRoomReqDTO chatRoomReqDTO) {
         log.warn("chatRoomDto : {}", chatRoomReqDTO);
-        ChatRoomResDTO room = chatService.createRoom(chatRoomReqDTO.getName());
+        ChatRoomResDTO room = chatService.createRoom(chatRoomReqDTO.getName(), chatRoomReqDTO.getEmail());
         return new ResponseEntity<>(room.getRoomId(), HttpStatus.OK);
+    }
+    // ownerId로 채팅방 목록 가져오기
+    @GetMapping("/rooms/owner/{ownerId}")
+    public ResponseEntity<List<ChatRoomResDTO>> getRoomsByOwnerId(@PathVariable Long ownerId) {
+        List<ChatRoomResDTO> chatRooms = chatService.findRoomsByOwnerId(ownerId);
+        return ResponseEntity.ok(chatRooms);
     }
     @GetMapping("/room")
     public List<ChatRoomResDTO> getRooms() {

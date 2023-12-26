@@ -34,6 +34,8 @@ public class UserResDto {
         this.performances = performances;
     }
 
+    private List<ChatRoomResDTO> chatRooms;
+
     // Member -> MemberResDto
     public static UserResDto of(Member member) {
         // 응답에는 비밀번호가 필요없기에 일다 제외

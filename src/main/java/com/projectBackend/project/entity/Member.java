@@ -1,9 +1,12 @@
 package com.projectBackend.project.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projectBackend.project.constant.Authority;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 // 해당 엔티티(클래스)의 이름은 User 가 아닌 Member
 // 이미 jwt의 User가 존재하기 때문

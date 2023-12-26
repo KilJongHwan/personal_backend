@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.mail.Session;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Set;
@@ -20,6 +19,7 @@ public class ChatRoomResDTO {
     private String roomId;
     private String name;
     private LocalDateTime regDate;
+    private String ownerEmail;
     @JsonIgnore // 이 어노테이션으로 WebSocketSession의 직렬화 방지
     private Set<WebSocketSession> sessions;
     // 세션 수가 0인지 확인하는 메서드
@@ -30,10 +30,11 @@ public class ChatRoomResDTO {
         return this.sessions.size();
     }
     @Builder
-    public ChatRoomResDTO(String roomId, String name, LocalDateTime regDate) {
+    public ChatRoomResDTO(String roomId, String name, LocalDateTime regDate, String ownerEmail) {
         this.roomId = roomId;
         this.name = name;
         this.regDate = regDate;
+        this.ownerEmail = ownerEmail;
         this.sessions = Collections.newSetFromMap(new ConcurrentHashMap<>());
     }
 

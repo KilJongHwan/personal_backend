@@ -81,7 +81,8 @@ public class CommentService {
             } else {
                 setAnonymous(comment, commentDTO);
             }
-        } else { // 이메일이 null이거나 빈 문자열인 경우
+        }
+        else { // 이메일이 null이거나 빈 문자열인 경우
             setAnonymous(comment, commentDTO);
         }
     }
@@ -272,7 +273,7 @@ public class CommentService {
         if (comment.getMember() != null) { // 회원이 존재하는 경우
             commentDTO.setEmail(comment.getMember().getUserEmail());
         } else { // 회원이 존재하지 않는 경우
-            commentDTO.setEmail(comment.getNickName());
+            commentDTO.setNickName(comment.getNickName());
             commentDTO.setPassword(comment.getPassword());
         }
         if (comment.getParentComment() != null) {

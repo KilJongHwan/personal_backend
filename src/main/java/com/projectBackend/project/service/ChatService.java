@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projectBackend.project.dto.ChatRoomResDTO;
 import com.projectBackend.project.entity.Chat;
 import com.projectBackend.project.entity.ChatRoom;
+import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.repository.ChatRepository;
 import com.projectBackend.project.repository.ChatRoomRepository;
+import com.projectBackend.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.web.socket.WebSocketSession;
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class ChatService {
     private Map<String, ChatRoomResDTO> chatRooms;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
+    private final UserRepository userRepository;
     Map<String, List<WebSocketSession>> roomSessions = new HashMap<>();
 
 
@@ -48,21 +52,34 @@ private void init(){
     public List<ChatRoomResDTO> findAllRoom() {
         return new ArrayList<>(chatRooms.values());
     }
+    // ownerId로 채팅방 목록 가져오기
+    public List<ChatRoomResDTO> findRoomsByOwnerId(Long ownerId) {
+        List<ChatRoom> chatRooms = chatRoomRepository.findByOwnerId(ownerId);
+        return chatRooms.stream()
+                .map(chatRoom -> new ChatRoomResDTO(chatRoom.getRoomId(), chatRoom.getRoomName(), chatRoom.getCreatedAt(), chatRoom.getOwner().getUserEmail()))
+                .collect(Collectors.toList());
+    }
 
     public ChatRoomResDTO findRoomById(String roomId) {
         return chatRooms.get(roomId);
     }
     // 방 개설하기
-    public ChatRoomResDTO createRoom(String name) {
+    public ChatRoomResDTO createRoom(String name,  String ownerEmail) {
         String randomId = UUID.randomUUID().toString();
         log.info("UUID : " + randomId);
+        Member owner = userRepository.findByUserEmail(ownerEmail)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
         ChatRoomResDTO chatRoom = ChatRoomResDTO.builder()
                 .roomId(randomId)
                 .name(name)
                 .regDate(LocalDateTime.now())
+                .ownerEmail(ownerEmail) // 소유자 이메일 설정
                 .build();
+
         ChatRoom chatRoomEntity = new ChatRoom();
         chatRoomEntity.setRoomId(randomId);
+        chatRoomEntity.setOwner(owner); // 채팅방 소유자 설정
         chatRoomEntity.setRoomName(name);
         chatRoomEntity.setCreatedAt(LocalDateTime.now());
         chatRoomRepository.save(chatRoomEntity);
