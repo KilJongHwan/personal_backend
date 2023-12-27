@@ -22,6 +22,8 @@ public class ChatRoom {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    @Column(name = "session_count")
+    private int sessionCount;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

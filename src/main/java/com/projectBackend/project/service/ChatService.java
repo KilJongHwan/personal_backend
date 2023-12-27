@@ -29,8 +29,6 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
-    Map<String, List<WebSocketSession>> roomSessions = new HashMap<>();
-
 
 //    @PostConstruct // 의존성 주입 이후 초기화를 수행
 //    private void init(){
@@ -119,8 +117,8 @@ private void init(){
     }
     // 세션 수 가져오기
     public int getSessionCount(String roomId) {
-        List<WebSocketSession> sessions = roomSessions.get(roomId);
-        return sessions != null ? sessions.size() : 0;
+        ChatRoomResDTO chatRoom = chatRooms.get(roomId);
+        return chatRoom != null ? chatRoom.getSessionCount() : 0;
     }
     // 이전 채팅 가져오기
     public List<Chat> getRecentMessages(String roomId) {

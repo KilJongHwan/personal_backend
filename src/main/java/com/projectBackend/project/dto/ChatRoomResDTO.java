@@ -22,6 +22,7 @@ public class ChatRoomResDTO {
     private String ownerEmail;
     @JsonIgnore // 이 어노테이션으로 WebSocketSession의 직렬화 방지
     private Set<WebSocketSession> sessions;
+    private int sessionCount;
     // 세션 수가 0인지 확인하는 메서드
     public boolean isSessionEmpty() {
         return this.sessions.isEmpty();
