@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class CommunityController {
 
     // 게시글 방 조회
     @GetMapping("/detail/{id}")
-    public ResponseEntity<CommunityDTO> getCommunityDetail(@PathVariable Long id ,HttpServletRequest request) {
+    public ResponseEntity<CommunityDTO> getCommunityDetail(@PathVariable Long id ,HttpServletRequest request) throws IOException {
         return ResponseEntity.ok(communityService.getCommunityDetail(id,request));
     }
     // 게시글 수정
