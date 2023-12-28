@@ -58,9 +58,7 @@ public class CommunityService {
             community.setCategory(category);
             community.setCategoryName(category.getCategoryName());
 
-            // 컨텐츠를 압축하여 저장
-            String compressedContent = TextCompressor.compress(communityDTO.getContent());
-            community.setContent(compressedContent);
+            community.setContent(communityDTO.getContent());
 
             communityRepository.save(community);
 
@@ -110,9 +108,6 @@ public class CommunityService {
 
         // Community 엔티티를 DTO로 변환
         CommunityDTO communityDTO = convertEntityToDTO(community);
-        // 압축 해제된 컨텐츠를 DTO에 설정
-        String decompressedContent = TextCompressor.decompress(community.getContent());
-        communityDTO.setContent(decompressedContent);
 
         communityRepository.save(community);
 
@@ -125,6 +120,7 @@ public class CommunityService {
             );
             community.setTitle(communityDTO.getTitle());
             community.setContent(communityDTO.getContent());
+
             // 기존의 MediaPaths 삭제 후 새로운 MediaPaths 저장
             List<MediaPaths> mediaPaths = mediaPathRepository.findByCommunity(community);
             mediaPathRepository.deleteAll(mediaPaths);
