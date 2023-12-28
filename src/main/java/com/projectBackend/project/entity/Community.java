@@ -1,11 +1,13 @@
 package com.projectBackend.project.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.sql.Blob;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,10 +40,8 @@ public class Community {
     private int viewCount;
     private int voteCount;
 
-    @ElementCollection
-    @CollectionTable(name = "media_paths", joinColumns = @JoinColumn(name = "community_id"))
-    @Column(name = "path")
-    private List<String> mediaPaths;
+    @OneToMany(mappedBy = "community")
+    private List<MediaPaths> mediaPaths;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,5 +55,6 @@ public class Community {
     private String ipAddress;
     private String nickName;
     private String password;
+
 
 }

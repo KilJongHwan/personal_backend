@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +28,8 @@ public class CommunityService {
     private final CommunityCategoryRepository categoryRepository;
     private final CommunityViewRepository viewRepository;
     private final CommunityVoteRepository communityVoteRepository;
+    private final MediaPathRepository mediaPathRepository;
+
     public boolean saveCommunity(CommunityDTO communityDTO, HttpServletRequest request) {
         try{
             Community community = new Community();
@@ -63,9 +62,19 @@ public class CommunityService {
             String compressedContent = TextCompressor.compress(communityDTO.getContent());
             community.setContent(compressedContent);
 
-
-            community.setMediaPaths(communityDTO.getMedias());
             communityRepository.save(community);
+
+            // MediaPath 저장
+            List<MediaPaths> mediaPaths = communityDTO.getMediaPaths().stream()
+                    .map(path -> {
+                        MediaPaths mediaPath = new MediaPaths();
+                        mediaPath.setPath(path);
+                        mediaPath.setCommunity(community);
+                        return mediaPath;
+                    })
+                    .collect(Collectors.toList());
+            mediaPathRepository.saveAll(mediaPaths);
+
             return true;
         } catch (Exception e){
             e.printStackTrace();
@@ -105,7 +114,6 @@ public class CommunityService {
         String decompressedContent = TextCompressor.decompress(community.getContent());
         communityDTO.setContent(decompressedContent);
 
-
         communityRepository.save(community);
 
         return communityDTO;
@@ -117,7 +125,19 @@ public class CommunityService {
             );
             community.setTitle(communityDTO.getTitle());
             community.setContent(communityDTO.getContent());
-            community.setMediaPaths(communityDTO.getMedias());
+            // 기존의 MediaPaths 삭제 후 새로운 MediaPaths 저장
+            List<MediaPaths> mediaPaths = mediaPathRepository.findByCommunity(community);
+            mediaPathRepository.deleteAll(mediaPaths);
+
+            List<MediaPaths> newMediaPaths = new ArrayList<>();
+            for (String path : communityDTO.getMediaPaths()) {
+                MediaPaths mediaPath = new MediaPaths();
+                mediaPath.setPath(path);
+                mediaPath.setCommunity(community);
+                newMediaPaths.add(mediaPath);
+            }
+            mediaPathRepository.saveAll(newMediaPaths);
+
             communityRepository.save(community);
             return true;
         } catch (Exception e) {
@@ -291,7 +311,6 @@ public class CommunityService {
         communityDTO.setTitle(community.getTitle());
         communityDTO.setContent(community.getContent());
         communityDTO.setIpAddress(community.getIpAddress());
-        communityDTO.setMedias(community.getMediaPaths());
         communityDTO.setEmail(community.getEmail());
         communityDTO.setNickName(community.getNickName());
         communityDTO.setPassword(community.getPassword());
@@ -304,6 +323,18 @@ public class CommunityService {
             communityDTO.setEmail(community.getMember().getUserEmail());
         }
         communityDTO.setRegDate(community.getRegDate());
+
+        // 미디어 데이터 가져오기
+        List<String> mediaPaths = getMediaPaths(community);
+        communityDTO.setMediaPaths(mediaPaths);
+
         return communityDTO;
+    }
+    // 게시글에 대한 미디어 경로 리스트 가져오기
+    private List<String> getMediaPaths(Community community) {
+        List<MediaPaths> mediaPaths = mediaPathRepository.findByCommunity(community);
+        return mediaPaths.stream()
+                .map(MediaPaths::getPath)
+                .collect(Collectors.toList());
     }
 }
