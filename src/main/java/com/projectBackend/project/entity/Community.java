@@ -26,6 +26,9 @@ public class Community {
 
     @Lob
     private String content;
+    @Lob
+    private String text;
+
     private LocalDateTime regDate;
     @PrePersist
     public void prePersist(){
@@ -40,9 +43,6 @@ public class Community {
     private int viewCount;
     private int voteCount;
 
-    @OneToMany(mappedBy = "community")
-    private List<MediaPaths> mediaPaths;
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -55,6 +55,4 @@ public class Community {
     private String ipAddress;
     private String nickName;
     private String password;
-
-
 }

@@ -103,7 +103,7 @@ public class CommunityController {
     // 게시글 검색 기본(제목+내용)
     @GetMapping("/search/titleAndContent")
     public ResponseEntity<Page<CommunityDTO>> searchByTitleAndContent(@RequestParam String keyword, Pageable pageable) {
-        Page<CommunityDTO> list = communityService.searchByTitleAndContent(keyword, pageable);
+        Page<CommunityDTO> list = communityService.searchByTitleAndText(keyword, pageable);
         return ResponseEntity.ok(list);
     }
     // 제목으로 검색

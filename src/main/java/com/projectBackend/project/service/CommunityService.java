@@ -3,7 +3,6 @@ package com.projectBackend.project.service;
 import com.projectBackend.project.dto.CommunityDTO;
 import com.projectBackend.project.entity.*;
 import com.projectBackend.project.repository.*;
-import com.projectBackend.project.utils.TextCompressor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +26,6 @@ public class CommunityService {
     private final CommunityCategoryRepository categoryRepository;
     private final CommunityViewRepository viewRepository;
     private final CommunityVoteRepository communityVoteRepository;
-    private final MediaPathRepository mediaPathRepository;
 
     public boolean saveCommunity(CommunityDTO communityDTO, HttpServletRequest request) {
         try{
@@ -57,21 +54,10 @@ public class CommunityService {
             community.setTitle(communityDTO.getTitle());
             community.setCategory(category);
             community.setCategoryName(category.getCategoryName());
-
             community.setContent(communityDTO.getContent());
+            community.setText(communityDTO.getText());
 
             communityRepository.save(community);
-
-            // MediaPath 저장
-            List<MediaPaths> mediaPaths = communityDTO.getMediaPaths().stream()
-                    .map(path -> {
-                        MediaPaths mediaPath = new MediaPaths();
-                        mediaPath.setPath(path);
-                        mediaPath.setCommunity(community);
-                        return mediaPath;
-                    })
-                    .collect(Collectors.toList());
-            mediaPathRepository.saveAll(mediaPaths);
 
             return true;
         } catch (Exception e){
@@ -87,7 +73,7 @@ public class CommunityService {
         }
         return communityDTOS;
     }
-    public CommunityDTO getCommunityDetail(Long id , HttpServletRequest request) throws IOException {
+    public CommunityDTO getCommunityDetail(Long id , HttpServletRequest request){
         Community community = communityRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("해당 게시물이 존재하지 않습니다.")
         );
@@ -120,19 +106,7 @@ public class CommunityService {
             );
             community.setTitle(communityDTO.getTitle());
             community.setContent(communityDTO.getContent());
-
-            // 기존의 MediaPaths 삭제 후 새로운 MediaPaths 저장
-            List<MediaPaths> mediaPaths = mediaPathRepository.findByCommunity(community);
-            mediaPathRepository.deleteAll(mediaPaths);
-
-            List<MediaPaths> newMediaPaths = new ArrayList<>();
-            for (String path : communityDTO.getMediaPaths()) {
-                MediaPaths mediaPath = new MediaPaths();
-                mediaPath.setPath(path);
-                mediaPath.setCommunity(community);
-                newMediaPaths.add(mediaPath);
-            }
-            mediaPathRepository.saveAll(newMediaPaths);
+            community.setText(communityDTO.getText());
 
             communityRepository.save(community);
             return true;
@@ -264,8 +238,8 @@ public class CommunityService {
         return posts.subList(0, Math.min(10, posts.size()));
     }
     // 게시글 페이지네이션 검색
-    public Page<CommunityDTO> searchByTitleAndContent(String keyword, Pageable pageable) {
-        Page<Community> communities = communityRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+    public Page<CommunityDTO> searchByTitleAndText(String keyword, Pageable pageable) {
+        Page<Community> communities = communityRepository.findByTitleContainingOrTextContaining(keyword, keyword, pageable);
         return communities.map(this::convertEntityToDTO);
     }
 
@@ -306,6 +280,7 @@ public class CommunityService {
         communityDTO.setId(community.getCommunityId());
         communityDTO.setTitle(community.getTitle());
         communityDTO.setContent(community.getContent());
+        communityDTO.setText(community.getText());
         communityDTO.setIpAddress(community.getIpAddress());
         communityDTO.setEmail(community.getEmail());
         communityDTO.setNickName(community.getNickName());
@@ -320,17 +295,6 @@ public class CommunityService {
         }
         communityDTO.setRegDate(community.getRegDate());
 
-        // 미디어 데이터 가져오기
-        List<String> mediaPaths = getMediaPaths(community);
-        communityDTO.setMediaPaths(mediaPaths);
-
         return communityDTO;
-    }
-    // 게시글에 대한 미디어 경로 리스트 가져오기
-    private List<String> getMediaPaths(Community community) {
-        List<MediaPaths> mediaPaths = mediaPathRepository.findByCommunity(community);
-        return mediaPaths.stream()
-                .map(MediaPaths::getPath)
-                .collect(Collectors.toList());
     }
 }

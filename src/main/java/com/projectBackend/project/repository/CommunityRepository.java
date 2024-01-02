@@ -15,7 +15,7 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
     Page<Community> findByCategory_CategoryId(Long categoryId, Pageable pageable);
     List<Community> findByRegDateAfter(LocalDateTime regDate);
     // 제목+내용으로 검색
-    Page<Community> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
+    Page<Community> findByTitleContainingOrTextContaining(String title, String content, Pageable pageable);
 
     // 제목으로만 검색
     Page<Community> findByTitleContaining(String title, Pageable pageable);

@@ -15,7 +15,7 @@ public class CommunityDTO {
     private String categoryName;
     private String title;
     private String content;
-    private List<String> mediaPaths;
+    private String text;
     private LocalDateTime regDate;
     private int viewCount;
     private int voteCount;
