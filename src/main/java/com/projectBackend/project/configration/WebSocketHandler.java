@@ -60,10 +60,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
             ChatMessageDTO chatMessage = objectMapper.readValue(payload, ChatMessageDTO.class);
             ChatRoomResDTO chatRoom = chatService.findRoomById(chatMessage.getRoomId());
             if(chatMessage.getRoomId() != null) {
+                log.warn("chatRoom is not null");
                 log.warn(chatRoom.toString());
                 // 세션과 채팅방 ID를 매핑
                 sessionRoomIdMap.put(session, chatMessage.getRoomId());
                 chatRoom.handlerActions(session, chatMessage, chatService);
+            } else {
+                // chatRoom이 null인 경우에 대한 처리
+                log.warn("chatRoom is null for ID: {}", chatMessage.getRoomId());
             }
 
         } catch (Exception e) {

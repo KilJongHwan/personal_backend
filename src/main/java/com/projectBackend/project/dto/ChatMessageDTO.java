@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class ChatMessageDTO {
     public enum MessageType {
-        ENTER, TALK, CLOSE
+        ENTER, TALK, CLOSE, COMMENT
     }
     private MessageType type;
     private String roomId;
